@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>รู้วันละเรื่อง • Daily Knowledge</title>
+  <meta name="theme-color" content="#6D94C5" />
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#F5EFE6; --warm:#E8DFCA; --ink:#1f2937; --muted:#64748b; --card:#ffffff; --edge:#CBDCEB;
+      --accent:#6D94C5; --accent-2:#5B86B4; --accent-soft:#E8F0FA;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font:16px/1.65 "Prompt", "Inter", system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans Thai", sans-serif;
+      color:var(--ink);
+      background:radial-gradient(1000px 600px at 80% -10%, var(--edge) 0%, var(--bg) 45%, var(--bg) 100%);
+      min-height:100%;
+    }
+    .wrap{max-width:980px;margin:auto;padding:22px}
+    .nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.2px}
+    .dot{width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+    .cluster{display:flex;flex-wrap:wrap;gap:10px}
+    .btn{appearance:none;border:1px solid var(--edge);background:#fff;color:var(--ink);padding:10px 14px;border-radius:14px;cursor:pointer;transition:.15s ease;display:inline-flex;gap:8px;align-items:center}
+    .btn:hover{transform:translateY(-1px); box-shadow:0 10px 24px rgba(109,148,197,.22)}
+    .btn.primary{background:linear-gradient(180deg,var(--accent),var(--accent-2));color:#fff;border-color:var(--accent)}
+    .btn.ghost{background:transparent}
+
+    .hero{display:grid;gap:8px;margin:6px 0 10px}
+    h1{margin:0;font-size:clamp(22px,3vw,30px)}
+    .muted{color:var(--muted)}
+
+    .panel{position:relative;border-radius:18px;padding:20px;border:1px solid var(--edge);background:var(--card);
+      box-shadow:0 14px 44px rgba(109,148,197,.18)}
+    .topic{display:inline-flex;align-items:center;gap:8px;font-weight:700;margin-bottom:6px;color:var(--accent)}
+    .content{font-size:clamp(16px,2.3vw,18px)}
+    .meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:14px;margin-top:10px}
+
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .row .btn{flex:1 1 170px;justify-content:center}
+
+    .filters{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 2px}
+    .pill{padding:7px 12px;border-radius:999px;border:1px solid rgba(109,148,197,.35);background:rgba(205,220,235,.45);cursor:pointer}
+    .pill.active{background:var(--warm);border-color:var(--accent);color:var(--ink)}
+
+    .switch{display:flex;align-items:center;gap:8px;margin-top:6px}
+
+    .hist{display:grid;gap:10px;margin-top:12px}
+    .hist h3{margin:8px 4px 2px;font-size:15px;color:var(--muted)}
+    .item{display:flex;justify-content:space-between;align-items:flex-start;gap:10px; padding:12px;border-radius:12px; background:#ffffff;border:1px solid var(--edge)}
+    .item b{display:block}
+
+    footer{margin-top:18px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    a{color:#2563eb}
+  /* Library / Router */
+    #libraryView{display:none}
+    #homeView{display:block}
+    body[data-route="library"] #homeView{display:none}
+    body[data-route="library"] #libraryView{display:block}
+    .lib{display:grid;gap:12px}
+    .lib .day{background:#fff;border:1px solid var(--edge);border-radius:12px;padding:12px}
+    .lib .day h4{margin:0 0 8px;font-size:15px;color:var(--ink)}
+    .lib .entry{border-top:1px dashed var(--edge);padding-top:10px;margin-top:10px}
+    .lib .entry:first-child{border-top:0;margin-top:0;padding-top:0}
+    .lib .title{font-weight:600;color:var(--accent);margin-bottom:4px}
+    .lib .content{white-space:pre-wrap}
+  /* Mobile OnePlus 8 (411×915 CSS px) tweaks */
+    :root{ --safe-bottom: env(safe-area-inset-bottom, 0px); }
+    body{ padding-bottom: var(--safe-bottom); -webkit-tap-highlight-color: transparent; }
+    @media (max-width: 440px){
+      .wrap{padding:16px}
+      .panel{padding:16px}
+      .cluster{gap:8px}
+      .btn{padding:12px 14px; min-height:48px; font-size:16px}
+      .row .btn{flex:1 1 100%}
+      .pill{padding:6px 10px}
+      h1{font-size:22px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="nav">
+      <div class="brand"><span class="dot"></span> รู้วันละเรื่อง</div>
+      <div class="cluster">
+        <button id="btnInstall" class="btn ghost" hidden>ติดตั้งแอพ</button>
+        <button id="btnLibrary" class="btn">คลัง</button>
+        <button id="btnToday" class="btn primary">เรื่องของวันนี้</button>
+      </div>
+    </div>
+
+    <div id="homeView">
+    <section class="hero">
+      <h1>วันนี้รู้หรือไม่?</h1>
+      <div class="muted">แอพความรู้สั้นๆ วันละเรื่อง • อ่านจบใน 30–60 วินาที</div>
+      <div class="filters" id="filters"></div>
+      <div class="switch">
+        <span class="muted">แหล่งข้อมูล:</span>
+        <span id="modeOffline" class="pill">ออฟไลน์</span>
+        <span id="modeOnline" class="pill">ออนไลน์ (สุ่มจากวิกิพีเดีย)</span>
+      </div>
+    </section>
+
+    <article class="panel">
+      <div class="topic" id="topic">—</div>
+      <div class="content" id="content">แตะ “เรื่องของวันนี้” เพื่อเริ่มต้น</div>
+      <div class="meta"><span id="dateTag" class="pill">—</span><span id="readTime" class="pill">~0 นาที</span></div>
+      <div class="row" style="margin-top:12px">
+        <button id="btnNext" class="btn">สุ่มเรื่องใหม่</button>
+        <!-- ตามคำขอ: ปุ่มบันทึกให้สีเดียวกับปุ่ม เรื่องของวันนี้ -->
+        <button id="btnSave" class="btn primary">บันทึกเข้าคลัง</button>
+        <button id="btnCopy" class="btn">คัดลอก</button>
+      </div>
+    </article>
+
+    <div class="hist">
+      <h3>คลังที่บันทึกไว้</h3>
+      <div id="history"></div>
+    </div>
+    </div>
+
+    <footer>
+      <div>ทำงานออฟไลน์ได้ • PWA</div>
+      <div>© 2025 Daily Knowledge</div>
+    </footer>
+
+    <section id="libraryView" class="panel" hidden>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px">
+        <div class="topic">คลังที่บันทึกไว้</div>
+        <div class="row">
+          <button id="btnBackHome" class="btn">กลับ</button>
+          <button id="btnClearAll" class="btn">ล้างคลัง</button>
+        </div>
+      </div>
+      <div class="muted" id="libCount"></div>
+      <div class="filters" style="margin-top:6px">
+        <input id="libSearch" type="search" placeholder="ค้นหาในคลัง..." class="pill" style="padding:8px 12px;width:100%;border-radius:12px;background:#fff;border:1px solid var(--edge)">
+      </div>
+      <div id="libList" class="lib"></div>
+    </section>
+
+  </div>
+
+  <script>
+    // ---------- DATA (ออฟไลน์) ----------
+    const DATA = [
+      {cat:'วิทยาศาสตร์', t:'วงจรการนอน ~90 นาที', c:'การนอนหนึ่งรอบกินเวลาประมาณ 90 นาที ตื่นช่วงปลายรอบจะรู้สึกสดชื่นกว่า แม้นอนชั่วโมงรวมเท่าเดิม เพราะลด sleep inertia.'},
+      {cat:'สุขภาพ', t:'กาแฟหลังตื่น 60–90 นาที', c:'หลังตื่น คอร์ติซอลสูงอยู่แล้ว เว้นคาเฟอีนสัก 60–90 นาทีช่วยให้ฤทธิ์กาแฟเสถียรขึ้นและไม่ไปรบกวนจังหวะตื่น–ง่วง.'},
+      {cat:'ภาษาอังกฤษ', t:'Because/So ไม่ใช้คู่กัน', c:'ใช้เพียงอย่างใดอย่างหนึ่ง เช่น “Because it rained, I stayed home.” หรือ “It rained, so I stayed home.”'},
+      {cat:'การทำงาน', t:'กฎ 2 นาที', c:'งานที่ใช้เวลา < 2 นาที ทำทันที ลดงานค้างและช่วยให้เริ่มงานใหญ่ได้ง่ายขึ้น.'},
+      {cat:'เทคโนโลยี', t:'รหัสผ่านแบบวลี', c:'Passphrase 16–20 ตัวอักษร อ่านง่าย จำง่าย ปลอดภัยกว่ารหัสสั้นที่ซับซ้อนมาก ใช้ตัวจัดการรหัสผ่านช่วยจำ.'},
+      {cat:'การเงิน', t:'กฎ 50/30/20', c:'แบ่งรายได้: 50% จำเป็น 30% ไลฟ์สไตล์ 20% ออม/ลงทุน ปรับสัดส่วนตามบริบทของตนได้.'},
+      {cat:'สุขภาพ', t:'ยืดเหยียดทุกชั่วโมง', c:'นั่งนานทำให้กล้ามเนื้อสั้นและไหล่ล้า ลุกยืน/ยืดเหยียดสั้นๆ 2–3 นาทีทุกชั่วโมงช่วยลดปวดคอหลัง.'},
+      {cat:'ภาษาอังกฤษ', t:'Comma splice', c:'จุลภาคเชื่อมประโยคสมบูรณ์สองอันโดยไม่มี conjunction/semicolon ถือว่าผิด: “It is late, I will go.” ควรแก้.'},
+      {cat:'วิทยาศาสตร์', t:'แสงฟ้ากับนาฬิกาชีวภาพ', c:'แสงฟ้าตอนดึกกดฮอร์โมนเมลาโทนิน ทำให้นอนหลับยาก ปรับด้วย Night Shift/ลดความสว่าง.'},
+      {cat:'เทคโนโลยี', t:'โหมดเครื่องบินประหยัดแบต', c:'สัญญาณอ่อนทำให้เครื่องค้นหาสัญญาณตลอด—กินแบต เปิดโหมดเครื่องบินชั่วคราวช่วยได้.'},
+      {cat:'จิตวิทยา', t:'กฎพาเรโต 80/20', c:'ผลลัพธ์ส่วนใหญ่ (80%) มาจากสาเหตุไม่กี่อย่าง (20%) ใช้โฟกัสงานที่มีผลกระทบสูง.'},
+      {cat:'การเรียนรู้', t:'Spaced Repetition', c:'ทบทวนเว้นระยะ (1, 3, 7, 14 วัน...) ช่วยยึดความจำระยะยาวดีกว่าการท่องรวดเดียว.'},
+      {cat:'ภาษาอังกฤษ', t:'Few vs. A few', c:'few = แทบไม่มี (เชิงลบ), a few = มีอยู่บ้างพอใช้ (เชิงบวก).'},
+      {cat:'วิทยาศาสตร์', t:'น้ำเดือด 100°C ไม่เสมอไป', c:'จุดเดือดขึ้นกับความดันอากาศ ที่ดอยสูงน้ำเดือดต่ำกว่า 100°C.'},
+      {cat:'สุขภาพ', t:'โปรตีนต่อมื้อ', c:'เป้าหมายทั่วไป 20–40 กรัม/มื้อช่วยกระตุ้นการสังเคราะห์โปรตีนกล้ามเนื้อ (ปรับตามน้ำหนัก/กิจกรรม).'},
+      {cat:'ภาษาไทย', t:'ฯลฯ อ่านว่า “อิละฯ”', c:'เครื่องหมาย ฯลฯ ใช้ย่อรายการยาว ๆ ให้อ่านว่า “และอื่น ๆ” ไม่ใส่หลังคำเดี่ยว.'},
+      {cat:'ประวัติศาสตร์', t:'กระดาษของไช่หลุน', c:'จีนคิดค้นกระดาษราว ค.ศ.105 ก่อนแพร่สู่โลกอิสลามและยุโรป ปฏิวัติการบันทึกความรู้.'},
+      {cat:'การเงิน', t:'ดอกเบี้ยทบต้น', c:'ดอกเบี้ยที่เพิ่มเข้าเงินต้นทำให้เติบโตแบบทวีคูณในระยะยาว เริ่มเร็วได้เปรียบ.'},
+      {cat:'การทำงาน', t:'Timeboxing', c:'กันเวลาคงที่ให้แต่ละงาน ลดการยืดเยื้อและช่วยตัดสินใจเร็วขึ้น.'},
+      {cat:'เทคโนโลยี', t:'สำรอง 3-2-1', c:'สำรองข้อมูล 3 ชุด 2 สื่อ 1 ชุดอยู่นอกสถานที่ ลดความเสี่ยงสูญหาย.'},
+      {cat:'สุขภาพ', t:'10k ก้าวไม่ใช่กฎตายตัว', c:'เป้าหมายกิจกรรมควรยืดหยุ่น—เน้นความสม่ำเสมอและแรงระดับปานกลาง.'},
+      {cat:'การสื่อสาร', t:'One-sentence takeaway', c:'สรุปใจความหนึ่งประโยคท้ายสไลด์ช่วยให้คนฟังจำสารหลัก.'},
+      {cat:'ภาษาอังกฤษ', t:'Every day vs. Everyday', c:'every day = ทุกวัน, everyday = ธรรมดาทั่วไป เช่น everyday clothes.'},
+      {cat:'วิทยาศาสตร์', t:'แรงตึงผิว', c:'แมลงน้ำเดินบนผิวน้ำได้เพราะแรงยึดเหนี่ยวระหว่างโมเลกุลทำให้ผิวเหมือนแผ่นฟิล์ม.'},
+      {cat:'จิตวิทยา', t:'Anchoring', c:'ตัวเลขแรกที่เห็นมีผลต่อการประเมินค่า (bias) แม้ไม่เกี่ยวข้องโดยตรง.'},
+      {cat:'พัฒนาตน', t:'Atomic Habits: 1%', c:'พัฒนา 1% ต่อวันให้ผลทบต้นยิ่งใหญ่ในระยะยาว (และแย่ลง 1% ก็เช่นกัน).'},
+      {cat:'อาหาร', t:'ใยอาหาร 25–38 กรัม/วัน', c:'เพิ่มผัก ผลไม้ ถั่ว ธัญพืชเต็มเมล็ดเพื่อสุขภาพลำไส้และคุมหิว.'},
+      {cat:'การทำงาน', t:'Batching', c:'รวมงานคล้ายกันทำทีเดียว ลด context switching และเพิ่มโฟกัส.'},
+      {cat:'ภาษาอังกฤษ', t:'who vs. whom', c:'who = ประธาน, whom = กรรม (ปัจจุบันนิยมใช้ who ในภาษาพูดมากกว่า).'},
+      {cat:'การเงิน', t:'กองทุนดัชนี', c:'กระจายความเสี่ยง ต้นทุนต่ำ เหมาะกับการลงทุนระยะยาวสำหรับมือใหม่.'},
+      {cat:'เทคโนโลยี', t:'2FA สำคัญกว่า', c:'แม้รหัสจะแข็งแรง แต่เปิดยืนยันตัวตนสองขั้นช่วยกันบัญชีถูกยึด.'},
+      {cat:'สุขภาพ', t:'น้ำ 30–35 มล./กก.', c:'โดยประมาณ ดื่มน้ำตามน้ำหนักตัวและกิจกรรม ปรับตามโรคประจำตัว/คำแนะนำแพทย์.'},
+      {cat:'ภาษาอังกฤษ', t:'Oxford comma', c:'จุลภาคก่อน and ตัวสุดท้ายในรายชื่อ ช่วยเลี่ยงความกำกวมบางกรณี.'}
+    ];
+
+    let onlineMode = JSON.parse(localStorage.getItem('onlineMode')||'false');
+
+    // ---------- DOM ----------
+    const $ = s => document.querySelector(s);
+    const topicEl = $('#topic');
+    const contentEl = $('#content');
+    const dateTag = $('#dateTag');
+    const readTime = $('#readTime');
+    const filtersEl = $('#filters');
+    const historyEl = $('#history');
+    let lastKey = '';
+
+    const cats = [...new Set(DATA.map(d=>d.cat))];
+    const safeGet = (k, fb) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch(_) { return fb; } };
+    let activeCats = new Set(Array.isArray(safeGet('cats', [])) ? safeGet('cats', []) : []);
+    if([...activeCats].some(c => !cats.includes(c))) { activeCats = new Set(cats); }
+    if(activeCats.size===0) cats.forEach(c=>activeCats.add(c));
+
+    function renderFilters(){
+      filtersEl.innerHTML='';
+      cats.forEach(cat=>{
+        const el=document.createElement('span');
+        el.className='pill'+(activeCats.has(cat)?' active':'');
+        el.textContent=cat;
+        el.onclick=()=>{ activeCats.has(cat)?activeCats.delete(cat):activeCats.add(cat); persistCats(); renderFilters(); showToday(); };
+        filtersEl.appendChild(el);
+      });
+    }
+    function persistCats(){ localStorage.setItem('cats', JSON.stringify([...activeCats])); }
+
+    function minutesToRead(text){ const words = text.split(/\s+/).length; return Math.max(1, Math.round(words/180)); }
+
+    function pickForDate(date){
+      const pool = DATA.filter(d=>activeCats.has(d.cat));
+      if(pool.length===0) return null;
+      const seed = Number(date.toISOString().slice(0,10).replaceAll('-',''));
+      return pool[seed % pool.length];
+    }
+
+    function show(item){
+      if(!item){ contentEl.textContent='ยังไม่มีข้อมูลในหมวดที่เลือก'; topicEl.textContent='—'; return; }
+      topicEl.textContent = `#${item.cat} · ${item.t}`;
+      contentEl.textContent = item.c;
+      const d = new Date();
+      dateTag.textContent = d.toLocaleDateString('th-TH', { year:'numeric', month:'short', day:'numeric' });
+      readTime.textContent = `~${minutesToRead(item.c)} นาที`;
+      lastKey = `${item.cat}::${item.t}`;
+    }
+      topicEl.textContent = `#${item.cat} · ${item.t}`;
+      contentEl.textContent = item.c;
+      const d = new Date();
+      dateTag.textContent = d.toLocaleDateString('th-TH', { year:'numeric', month:'short', day:'numeric' });
+      readTime.textContent = `~${minutesToRead(item.c)} นาที`;
+    }
+
+    function showToday(){
+      updateModeUI();
+      if(onlineMode){ fetchLiveFact(); return; }
+      let it = pickForDate(new Date());
+      if(!it){ activeCats = new Set(cats); persistCats(); renderFilters(); it = pickForDate(new Date()); }
+      show(it);
+    }
+      show(pickForDate(new Date()));
+    }
+
+    function randomItem(){
+      const pool = DATA.filter(d=>activeCats.has(d.cat));
+      if(pool.length===0) return null;
+      if(pool.length===1) return pool[0];
+      let it, guard=24;
+      do{ it = pool[Math.floor(Math.random()*pool.length)]; } while(`${it.cat}::${it.t}`===lastKey && guard-- > 0);
+      return it;
+    }
+
+    // ---------- Online Mode (Wikipedia Random Summary) ----------
+    async function fetchLiveFact(){
+      try{
+        const th = await fetch('https://th.wikipedia.org/api/rest_v1/page/random/summary', {mode:'cors'});
+        if(th.ok){ const j = await th.json(); return show({cat:'วิกิพีเดีย', t:j.title, c:(j.extract||'').trim()||'—'}); }
+        const en = await fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary', {mode:'cors'});
+        if(en.ok){ const j = await en.json(); return show({cat:'Wikipedia', t:j.title, c:(j.extract||'').trim()||'—'}); }
+        toast('ดึงข้อมูลออนไลน์ไม่สำเร็จ ใช้โหมดออฟไลน์แทน');
+        onlineMode=false; updateModeUI(); showToday();
+      }catch(err){ toast('ออฟไลน์หรือเน็ตมีปัญหา ใช้โหมดออฟไลน์'); onlineMode=false; updateModeUI(); showToday(); }
+    }
+
+    // ---------- History ----------
+    function readStore(){ return JSON.parse(localStorage.getItem('saved')||'[]'); }
+    function writeStore(list){ localStorage.setItem('saved', JSON.stringify(list)); renderHistory(); if(location.hash.startsWith('#/library')) renderLibrary(document.getElementById('libSearch')?.value||''); }
+    function saveCurrent(){ const entry={dt:new Date().toISOString(), topic:topicEl.textContent, content:contentEl.textContent}; const list=readStore(); list.unshift(entry); writeStore(list.slice(0,200)); }
+    function removeAt(i){ const list=readStore(); list.splice(i,1); writeStore(list); }
+    function renderHistory(){
+      const list = readStore(); historyEl.innerHTML='';
+      if(list.length===0){ historyEl.innerHTML='<div class="muted">ยังไม่มีบันทึก ลองกด “บันทึกเข้าคลัง”</div>'; return; }
+      list.forEach((x,i)=>{
+        const el=document.createElement('div'); el.className='item';
+        el.innerHTML=`<div><b>${new Date(x.dt).toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'})}</b>
+            <div class="muted">${x.topic}</div><div>${x.content}</div></div>
+            <button class="btn" aria-label="delete">ลบ</button>`;
+        el.querySelector('button').onclick=()=>removeAt(i);
+        historyEl.appendChild(el);
+      });
+    }
+
+    // ---------- Actions ----------
+    document.getElementById('btnToday').onclick = showToday;
+    document.getElementById('btnNext').onclick = ()=> onlineMode ? fetchLiveFact() : show(randomItem());
+    document.getElementById('btnSave').onclick = saveCurrent;
+    document.getElementById('btnCopy').onclick = async ()=>{ const text = `${topicEl.textContent}\n\n${contentEl.textContent}`; await navigator.clipboard.writeText(text); toast('คัดลอกแล้ว'); };
+          if(navigator.share){ try{ await navigator.share(shareData);}catch{} } else { await navigator.clipboard.writeText(`${shareData.title}\n\n${shareData.text}`); toast('คัดลอกข้อความพร้อมแชร์แล้ว'); }
+    };
+
+    // ---------- Mode toggle ----------
+    function updateModeUI(){
+      localStorage.setItem('onlineMode', JSON.stringify(onlineMode));
+      document.getElementById('modeOffline').classList.toggle('active', !onlineMode);
+      document.getElementById('modeOnline').classList.toggle('active', onlineMode);
+    }
+    document.getElementById('modeOffline').onclick = ()=>{ onlineMode=false; updateModeUI(); showToday(); };
+    document.getElementById('modeOnline').onclick = ()=>{ onlineMode=true; updateModeUI(); showToday(); };
+
+    // ---------- PWA (Manifest + Service Worker) ----------
+    function injectManifest(){
+      try{
+        const manifest = {
+          name:'รู้วันละเรื่อง', short_name:'วันละเรื่อง', start_url:'.', display:'standalone', background_color:'#F5EFE6', theme_color:'#6D94C5',
+          icons:[ {src:generateIconSVG('256'), sizes:'256x256', type:'image/svg+xml', purpose:'any'}, {src:generateIconSVG('maskable'), sizes:'512x512', type:'image/svg+xml', purpose:'maskable'} ]
+        };
+        const blob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
+        const link=document.createElement('link'); link.rel='manifest'; link.href=URL.createObjectURL(blob); document.head.appendChild(link);
+      }catch(e){ /* บางเบราว์เซอร์บน file:// อาจไม่รองรับ */ }
+    }, {src:generateIconSVG('maskable'), sizes:'512x512', type:'image/svg+xml', purpose:'maskable'} ]
+      };
+      const blob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
+      const link=document.createElement('link'); link.rel='manifest'; link.href=URL.createObjectURL(blob); document.head.appendChild(link);
+    }
+    function generateIconSVG(mode){
+      const svg = mode==='maskable'
+        ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#6D94C5"/><text x="84" y="320" font-size="240" fill="#ffffff" font-family="system-ui, -apple-system, Segoe UI, Roboto">รู้</text></svg>`
+        : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><rect width="256" height="256" rx="48" fill="#6D94C5"/><text x="32" y="168" font-size="120" fill="#ffffff" font-family="system-ui, -apple-system, Segoe UI, Roboto">รู้</text></svg>`;
+      return URL.createObjectURL(new Blob([svg], {type:'image/svg+xml'}));
+    }
+
+    let deferredPrompt; const btnInstall=document.getElementById('btnInstall');
+    window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt=e; btnInstall.hidden=false; });
+    btnInstall.onclick = async ()=>{ if(!deferredPrompt) return; deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; btnInstall.hidden=true; };
+
+    async function registerSW(){
+      const isSecure = location.protocol === 'https:' || location.hostname === 'localhost';
+      if(!('serviceWorker' in navigator) || !isSecure) return;
+      const swCode = `self.addEventListener('install', e=>{ e.waitUntil(caches.open('daily-knowledge-v3').then(c=>c.addAll(['./']))); self.skipWaiting(); });
+      self.addEventListener('activate', e=>{ e.waitUntil(self.clients.claim()); });
+      self.addEventListener('fetch', e=>{ e.respondWith( caches.match(e.request).then(r=> r || fetch(e.request).then(resp=>{ const copy=resp.clone(); caches.open('daily-knowledge-v3').then(c=>c.put(e.request, copy)); return resp; }).catch(()=>caches.match('./')) ) ); });`;
+      const blob=new Blob([swCode], {type:'text/javascript'}); const url=URL.createObjectURL(blob);
+      try{ await navigator.serviceWorker.register(url); }catch(err){ console.warn('SW failed', err); }
+    });
+      self.addEventListener('activate', e=>{ e.waitUntil(self.clients.claim()); });
+      self.addEventListener('fetch', e=>{ e.respondWith( caches.match(e.request).then(r=> r || fetch(e.request).then(resp=>{ const copy=resp.clone(); caches.open('daily-knowledge-v3').then(c=>c.put(e.request, copy)); return resp; }).catch(()=>caches.match('./')) ) ); });`;
+      const blob=new Blob([swCode], {type:'text/javascript'}); const url=URL.createObjectURL(blob);
+      try{ await navigator.serviceWorker.register(url); }catch(err){ console.warn('SW failed', err); }
+    }
+
+    // ---------- Toast ----------
+    function toast(msg){
+      const n=Object.assign(document.createElement('div'),{textContent:msg});
+      Object.assign(n.style,{position:'fixed',left:'50%',bottom:'24px',transform:'translateX(-50%)',background:'#ffffff',color:'var(--ink)',padding:'10px 14px',borderRadius:'12px',border:'1px solid var(--edge)',boxShadow:'0 10px 26px rgba(109,148,197,.25)',zIndex:9999});
+      document.body.appendChild(n); setTimeout(()=>n.remove(),1600);
+    }
+
+    // ---------- Library / Router ----------
+    const libraryViewEl = document.getElementById('libraryView');
+    const libList = document.getElementById('libList');
+    const libSearch = document.getElementById('libSearch');
+    const libCount = document.getElementById('libCount');
+
+    function renderLibrary(q=''){
+      const raw = readStore().map((x,i)=>({...x,_i:i}));
+      let filtered = raw;
+      if(q){ const qq=q.toLowerCase(); filtered = raw.filter(x => (x.topic||'').toLowerCase().includes(qq) || (x.content||'').toLowerCase().includes(qq)); }
+      const groups = new Map();
+      filtered.forEach(it=>{ const key = new Date(it.dt).toISOString().slice(0,10); if(!groups.has(key)) groups.set(key, []); groups.get(key).push(it); });
+      const keys = [...groups.keys()].sort((a,b)=> b.localeCompare(a));
+      libList.innerHTML = keys.map(k=>{
+        const dateLabel = new Date(k).toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+        const entries = groups.get(k).map(it=>`<div class="entry"><div class="title">${it.topic}</div><div class="content">${it.content}</div><div class="row" style="margin-top:6px"><button class="btn" data-copy="${it._i}">คัดลอก</button><button class="btn" data-del="${it._i}">ลบ</button></div></div>`).join('');
+        return `<div class="day"><h4>${dateLabel}</h4>${entries}</div>`;
+      }).join('') || '<div class="muted">ยังไม่มีบันทึก ลองกด “บันทึกเข้าคลัง” ที่หน้าแรก</div>';
+      libCount.textContent = `ทั้งหมด ${filtered.length} รายการ · ${keys.length} วัน`;
+    }
+
+    function route(){
+      const isLib = location.hash.startsWith('#/library');
+      document.body.dataset.route = isLib ? 'library' : 'home';
+      if(isLib){
+        renderLibrary(document.getElementById('libSearch')?.value||'');
+      }else{
+        renderFilters();
+      }
+    } }
+    window.addEventListener('hashchange', route);
+
+    document.getElementById('btnLibrary').onclick = ()=>{ location.hash = '#/library'; };
+    document.getElementById('btnBackHome').onclick = ()=>{ location.hash = ''; };
+    document.getElementById('btnClearAll').onclick = ()=>{ if(confirm('ล้างคลังทั้งหมด?')){ writeStore([]); renderLibrary(libSearch?.value||''); } };
+    libList?.addEventListener('click', (e)=>{ const t=e.target.closest('button'); if(!t) return; if(t.dataset.del){ removeAt(Number(t.dataset.del)); renderLibrary(libSearch?.value||''); } if(t.dataset.copy){ const it = readStore()[Number(t.dataset.copy)]; navigator.clipboard.writeText(`${it.topic}
+
+${it.content}`); toast('คัดลอกแล้ว'); } });
+    libSearch?.addEventListener('input', e=> renderLibrary(e.target.value.trim()));
+
+    // ---------- Init ----------
+    function init(){
+      renderFilters(); renderHistory(); injectManifest(); registerSW(); route(); showToday();
+    }
+    init();
+  </script>
+</body>
+</html>
